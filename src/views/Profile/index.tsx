@@ -7,22 +7,73 @@ import auth from '@react-native-firebase/auth';
 const Profile = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+
+  /* const MAX_RETRIES = 5;
+     const INITIAL_DELAY_MS = 500;
+   */
+  /*const fetchUserProfileWithRetry = async (retryCount = 0) => {
+    try {
+      const userId = auth().currentUser.uid;
+      const userDoc = await firestore().collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        setFirstName(userData.firstName);
+        setLastName(userData.lastName);
+        setEmail(userData.email);
+        setUsername(userData.username);
+      } else {
+        console.log('User not found in Firestore.');
+      }
+    } catch (error) {
+      if (error.code === 'firestore/unavailable' && retryCount < MAX_RETRIES) {
+        const delayMs = INITIAL_DELAY_MS * Math.pow(2, retryCount);
+        setTimeout(() => fetchUserProfileWithRetry(retryCount + 1), delayMs);
+      } else {
+        console.error('Error fetching user data: ', error);
+      }
+    }
+  };*/
+
+  // useEffect(() => {
+  //   fetchUserProfileWithRetry();
+  // }, []);
 
   const saveProfile = async () => {
-    try {
-      const userDoc = firestore().collection('users').doc(); // Use appropriate document reference
-      await userDoc.set({
-        firstName: firstName,
-        lastName: lastName,
-      });
-      Alert.alert('Success', 'Profile updated successfully.');
-    } catch (e) {
-      console.error(e);
-      Alert.alert('Error', 'Could not save profile.');
-    }
+    // ... (your saveProfile function code)
   };
+
   return (
     <View style={{padding: 20, backgroundColor: 'white', flex: 1}}>
+      <Text style={{marginBottom: 10}}>Email:</Text>
+      <TextInput
+        style={{
+          borderWidth: 1,
+          borderColor: '#DDD',
+          padding: 10,
+          marginBottom: 20,
+          borderRadius: 5,
+        }}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+      />
+
+      <Text style={{marginBottom: 10}}>Username:</Text>
+      <TextInput
+        style={{
+          borderWidth: 1,
+          borderColor: '#DDD',
+          padding: 10,
+          marginBottom: 20,
+          borderRadius: 5,
+        }}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+      />
+
       <Text style={{marginBottom: 10}}>First Name:</Text>
       <TextInput
         style={{

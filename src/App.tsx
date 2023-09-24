@@ -9,6 +9,7 @@ import React, {useEffect, useState} from 'react';
 import Login from './views/Login';
 import auth from '@react-native-firebase/auth';
 import Registration from './views/Registration';
+import ForgetPassword from './views/ForgetPassword';
 
 const Stack = createNativeStackNavigator();
 
@@ -50,6 +51,10 @@ const App = () => {
                 screenOptions={{headerShown: false}}>
                 <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen name="Registration" component={Registration} />
+                <Stack.Screen
+                  name="ForgetPassword"
+                  component={ForgetPassword}
+                />
               </Stack.Navigator>
             )}
           </NavigationContainer>
