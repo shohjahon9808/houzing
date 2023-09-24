@@ -5,8 +5,10 @@ import {Hotel} from '../types';
 
 export type StackParamList = {
   Home: {userId: string};
+  HomeTabs: {userId: string};
 
   Login: undefined;
+  ForgetPassword: undefined;
   Registration: undefined;
   Profile: undefined;
 
@@ -15,7 +17,8 @@ export type StackParamList = {
 
 export type HomeScreeNavigationProp = NativeStackNavigationProp<
   StackParamList,
-  'Home'
+  'Home',
+  'HomeTabs'
 >;
 export type LoginScreeNavigationProp = NativeStackNavigationProp<
   StackParamList,
@@ -35,6 +38,10 @@ export type HotelDetailsScreeNavigationProp = NativeStackNavigationProp<
 export type HotelDetailsScreenRouteProp = RouteProp<
   StackParamList,
   'HotelDetails'
+>;
+export type ForgetPasswordScreenRouteProp = RouteProp<
+  StackParamList,
+  'ForgetPassword'
 >;
 export type HomeScreenRouteProp = RouteProp<StackParamList, 'Home'>;
 export type ProfileScreenRouteProp = RouteProp<StackParamList, 'Profile'>;

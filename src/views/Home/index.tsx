@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import CategoriesList from '../../components/CategoriesList';
 import InputSearch from '../../components/InputSearch';
@@ -9,7 +9,7 @@ import {Category} from '../../types';
 import * as S from './styles';
 
 import hotelMocks from '../../mocks/hotels';
-import {Button, ScrollView, View} from 'react-native';
+import {ScrollView} from 'react-native';
 import axios from 'axios';
 
 const CATEGORIES: Category[] = [
@@ -39,9 +39,6 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category>(
     CATEGORIES[0],
   );
-
-  const [userInfo, setUserInfo] = useState(null);
-
   const handleCategoryClick = (categoryKey: string) => {
     const categoryClicked = CATEGORIES.find(
       category => category.key === categoryKey,
@@ -50,109 +47,73 @@ const Home = () => {
     setSelectedCategory(categoryClicked);
   };
 
-  // const [userId, setUserId] = useState(null);
-
-  /*useEffect(() => {
-                                                    // Function to fetch the userId from AsyncStorage
-                                                    const getUserIdFromStorage = async () => {
-                                                      try {
-                                                        const storedUserId = await AsyncStorage.getItem('userId');
-                                                        if (storedUserId) {
-                                                          setUserId(storedUserId);
-                                                        }
-                                                      } catch (error) {
-                                                        console.error('Error fetching userId from storage:', error);
-                                                      }
-                                                    };
-
-                                                    getUserIdFromStorage();
-                                                  }, []);
-                                                */
-  /*useEffect(() => {
-                                                    if (userId) {
-                                                      const fetchUserData = async () => {
-                                                        try {
-                                                          const userDocument = await firestore()
-                                                            .collection('users')
-                                                            .doc(userId)
-                                                            .get();
-
-                                                          if (userDocument.exists) {
-                                                            const userData: UserData = userDocument.data() as UserData;
-                                                            setUserInfo(userData);
-                                                          } else {
-                                                            console.log('No such document!');
-                                                          }
-                                                        } catch (error) {
-                                                          console.error('Error fetching user data: ', error);
-                                                        }
-                                                      };
-
-                                                      fetchUserData();
-                                                    }
-                                                  }, [userId]); // <-- `userId` is added to the dependency array*/
-
   const [data, setData] = useState(null);
-  console.log(data);
-
   const fetchData = async () => {
     const options = {
-      method: 'GET',
-      url: 'https://realty-in-us.p.rapidapi.com/locations/v2/auto-complete',
-      params: {
-        input: 'new york',
-        limit: '10',
-      },
+      method: 'POST',
+      url: 'https://realty-in-us.p.rapidapi.com/properties/v3/list',
       headers: {
-        'X-RapidAPI-Key': 'bc8a3c6271msh5c8dc2065bf6aa1p11098ajsn80f5ebc1d417',
+        'content-type': 'application/json',
+        'X-RapidAPI-Key': '4fa2a4ead5msh05a711b38e6f099p18dbdajsn1de61eec28ae',
         'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com',
       },
+      data: {
+        limit: 200,
+        offset: 0,
+        postal_code: '90004',
+        status: ['for_sale', 'ready_to_build'],
+        sort: {
+          direction: 'desc',
+          field: 'list_date',
+        },
+      },
     };
-
     try {
       const response = await axios.request(options);
-      console.log(response.data);
+      const results = response.data.data?.home_search?.results?.slice(0, 50);
+
+      if (results && results.length) {
+        setData(results);
+      } else {
+        setData(null);
+      }
     } catch (error) {
-      console.error(error);
+      console.error(`Error fetching home data: ${error.message}`);
     }
   };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <ScrollView>
       <S.Container>
         <S.Header>
           <S.Title>
-            Find your house {'\n'}in <S.PlaceTitle>Paris</S.PlaceTitle>
+            Browse homes {'\n'}in <S.PlaceTitle>Seoul South Korea</S.PlaceTitle>
           </S.Title>
 
           <S.UserIcon />
         </S.Header>
 
-        <View>
-          {/*<Button title="Fetch Data" onPress={fetchData} />*/}
-          {/*  {data.map(item => (
-            <Text key={item.id} style={{color: 'black'}}>
-              {item.id}
-            </Text>
-          )) &&
-            Array.isArray(data) &&
-            data}*/}
-        </View>
-
-        {/*
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          {userInfo ? (
-            <>
-              <Text>Welcome, {userInfo.fullName}!</Text>
-              <Text>Your email: {userInfo.email}</Text>
-               You can display other user information here if needed
-            </>
+        {/*<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          {data ? (
+            data.map(item => (
+              <View key={item.property_id}>
+                <Text>{item.property_id}</Text>
+                <Image
+                  source={{uri: item.primary_photo.href}}
+                  style={{width: 70, height: 70}}
+                />
+              </View>
+            ))
           ) : (
-            <Text>Loading...</Text>
+            <Text>...Loading</Text>
           )}
         </View>*/}
 
         <S.InputContainer>
-          <InputSearch placeholder="Search" />
+          <InputSearch placeholder="Address, School, City, Zip or Neighborhood" />
         </S.InputContainer>
 
         <S.CategoriesListContainer>
@@ -175,7 +136,7 @@ const Home = () => {
           />
         </S.HotelCardListContainer>
 
-        <S.TopHotelListContainer>
+        <S.TopHotelListContainer style={{marginBottom: 40}}>
           <S.TopHotelTitle>Top hotels</S.TopHotelTitle>
           <TopHotelList />
         </S.TopHotelListContainer>
@@ -185,3 +146,45 @@ const Home = () => {
 };
 
 export default Home;
+
+// const [userId, setUserId] = useState(null);
+
+/*useEffect(() => {
+                                                  // Function to fetch the userId from AsyncStorage
+                                                  const getUserIdFromStorage = async () => {
+                                                    try {
+                                                      const storedUserId = await AsyncStorage.getItem('userId');
+                                                      if (storedUserId) {
+                                                        setUserId(storedUserId);
+                                                      }
+                                                    } catch (error) {
+                                                      console.error('Error fetching userId from storage:', error);
+                                                    }
+                                                  };
+
+                                                  getUserIdFromStorage();
+                                                }, []);
+                                              */
+/*useEffect(() => {
+                                                  if (userId) {
+                                                    const fetchUserData = async () => {
+                                                      try {
+                                                        const userDocument = await firestore()
+                                                          .collection('users')
+                                                          .doc(userId)
+                                                          .get();
+
+                                                        if (userDocument.exists) {
+                                                          const userData: UserData = userDocument.data() as UserData;
+                                                          setUserInfo(userData);
+                                                        } else {
+                                                          console.log('No such document!');
+                                                        }
+                                                      } catch (error) {
+                                                        console.error('Error fetching user data: ', error);
+                                                      }
+                                                    };
+
+                                                    fetchUserData();
+                                                  }
+                                                }, [userId]); // <-- `userId` is added to the dependency array*/

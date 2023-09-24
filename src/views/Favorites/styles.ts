@@ -10,7 +10,7 @@ export const Container = styled.View`
   flex: 1;
   padding-horizontal: ${RFValue(24)}px;
   padding-top: ${currentStatusBarHeight + RFValue(24)}px;
-  //background-color: ${({theme}) => theme.colors.white};
+  background-color: ${({theme}) => theme.colors.white};
 `;
 
 export const CategoriesListContainer = styled.View`
