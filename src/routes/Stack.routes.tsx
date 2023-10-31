@@ -2,7 +2,7 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faHome, faUser} from '@fortawesome/free-solid-svg-icons';
+import {faHome, faUser, faHeart} from '@fortawesome/free-solid-svg-icons';
 
 import Home from '../views/Home';
 import Login from '../views/Login';
@@ -11,6 +11,7 @@ import Registration from '../views/Registration';
 import {StackParamList} from './types';
 import Profile from '../views/Profile';
 import ForgetPassword from '../views/ForgetPassword';
+import Favorites from '../views/Favorites';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 const Tab = createBottomTabNavigator();
@@ -27,6 +28,8 @@ const HomeTabs = () => (
           iconName = faHome;
         } else if (route.name === 'Profile') {
           iconName = faUser;
+        } else if (route.name === 'Favorites') {
+          iconName = faHeart;
         }
         return <FontAwesomeIcon icon={iconName} size={size} color={color} />;
       },
@@ -43,6 +46,7 @@ const HomeTabs = () => (
       component={Home}
     />
     <Tab.Screen name="Profile" component={Profile} />
+    <Stack.Screen name="Favorites" component={Favorites} />
   </Tab.Navigator>
 );
 
@@ -56,6 +60,7 @@ const StackRoutes = () => (
       options={{title: 'Home'}}
     />
     <Stack.Screen name="Login" component={Login} />
+    <Stack.Screen name="Favorites" component={Favorites} />
     <Stack.Screen name="HotelDetails" component={HotelDetails} />
     <Stack.Screen name="Registration" component={Registration} />
     <Stack.Screen name="Profile" component={Profile} />

@@ -11,6 +11,7 @@ export type StackParamList = {
   ForgetPassword: undefined;
   Registration: undefined;
   Profile: undefined;
+  Favorites: undefined;
 
   HotelDetails: {hotel: Hotel};
 };

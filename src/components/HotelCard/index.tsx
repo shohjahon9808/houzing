@@ -1,17 +1,15 @@
-import React from 'react';
-import { View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import Animated, {
-  interpolate,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
-import { RFPercentage } from 'react-native-responsive-fontsize';
+import React, {useEffect} from 'react';
+import {View} from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import Animated, {interpolate, useAnimatedStyle} from 'react-native-reanimated';
+import {RFPercentage} from 'react-native-responsive-fontsize';
 
 import Rating from '../Rating';
 
-import { Hotel } from '../../types';
+import {Hotel} from '../../types';
 
 import * as S from './styles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 interface IHotelCardProps {
   hotel: Hotel;
   itemIndex: number;
@@ -35,7 +33,7 @@ const HotelCard = ({
 
   const cardStyle = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(scrollX.value, inputRange, [0.5, 1, 0.5]),
+      // opacity: interpolate(scrollX.value, inputRange, [0.5, 1, 0.5]),
       transform: [
         {
           scale: interpolate(scrollX.value, inputRange, [0.8, 1, 0.8]),

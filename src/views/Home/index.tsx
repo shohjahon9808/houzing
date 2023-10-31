@@ -4,34 +4,21 @@ import CategoriesList from '../../components/CategoriesList';
 import InputSearch from '../../components/InputSearch';
 import HotelCardList from '../../components/HotelCardList';
 import TopHotelList from '../../components/TopHotelsList';
-
 import {Category} from '../../types';
 import * as S from './styles';
-
-import hotelMocks from '../../mocks/hotels';
-import {ScrollView} from 'react-native';
+import {ActivityIndicator, ScrollView} from 'react-native';
 import axios from 'axios';
 
 const CATEGORIES: Category[] = [
   {
-    description: 'All Places',
-    key: 'ALL',
+    description: 'For Sale',
+    key: 'for_sale',
+    url: 'https://us-real-estate.p.rapidapi.com/v2/for-sale',
   },
   {
-    description: 'Popular',
-    key: 'POPULAR',
-  },
-  {
-    description: 'Top Rated',
-    key: 'TOP_RATED',
-  },
-  {
-    description: 'Featured',
-    key: 'FEATURED',
-  },
-  {
-    description: 'Luxury',
-    key: 'LUXURY',
+    description: 'For Rent',
+    key: 'for_rent',
+    url: 'https://us-real-estate.p.rapidapi.com/v2/for-rent',
   },
 ];
 
@@ -39,52 +26,91 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category>(
     CATEGORIES[0],
   );
+
+  const getRandomFloat = (min, max) => {
+    return Math.random() * (max - min) + min;
+  };
+  const getRandomInt = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+  const formatNumber = num => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'm';
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'k';
+    }
+    return num.toString();
+  };
+  const mapApiDataToHotelType = apiData => {
+    const randomRating = Math.round(getRandomFloat(1.0, 5.0) * 10) / 10;
+    const randomReviews = formatNumber(getRandomInt(0, 10000));
+
+    const mockHotelData = {
+      rating: randomRating.toString(), // use the random rating
+      reviews: randomReviews,
+      imageGradient: require('../../assets/hotel1-gradient.jpeg'),
+      details:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Consequat nisl vel pretium lectus quam id leo. Velit euismod in pellentesque massa placerat duis ultricies lacus sed. Justo laoreet sit amet cursus sit',
+    };
+    return {
+      ...mockHotelData,
+      name: apiData?.location?.address?.line,
+      location: `City: ${apiData?.location?.address?.city}  State: ${apiData?.location?.address?.state}`,
+      id: apiData?.property_id,
+      price: apiData.description?.sold_price
+        ? apiData.description?.sold_price
+        : getRandomInt(0, 10000),
+      image: apiData.primary_photo
+        ? {uri: apiData.primary_photo.href}
+        : require('../../assets/hotel1-gradient.jpeg'),
+    };
+  };
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    const options = {
+      method: 'GET',
+      url: selectedCategory.url,
+      params: {
+        offset: '0',
+        limit: '42',
+        state_code: 'MI',
+        city: 'Detroit',
+        sort: 'newest',
+      },
+      headers: {
+        'X-RapidAPI-Key': '1a23dc6cccmshf4a4a603d7b796cp17c559jsnf69b395a0722',
+        'X-RapidAPI-Host': 'us-real-estate.p.rapidapi.com',
+      },
+    };
+    try {
+      const response = await axios.request(options);
+      const results = response.data.data?.home_search?.results?.slice(0, 50);
+      if (results && results.length) {
+        const mappedResults = results.map(mapApiDataToHotelType);
+        setData(mappedResults);
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      console.error(`Error fetching home data: ${error.message}`);
+    } finally {
+      setIsLoading(false); // Set loading to false after fetching data
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, [selectedCategory]);
   const handleCategoryClick = (categoryKey: string) => {
     const categoryClicked = CATEGORIES.find(
       category => category.key === categoryKey,
     ) as Category;
 
     setSelectedCategory(categoryClicked);
+    setIsLoading(true); // set loading to true when the category changes
   };
-
-  const [data, setData] = useState(null);
-  const fetchData = async () => {
-    const options = {
-      method: 'POST',
-      url: 'https://realty-in-us.p.rapidapi.com/properties/v3/list',
-      headers: {
-        'content-type': 'application/json',
-        'X-RapidAPI-Key': '4fa2a4ead5msh05a711b38e6f099p18dbdajsn1de61eec28ae',
-        'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com',
-      },
-      data: {
-        limit: 200,
-        offset: 0,
-        postal_code: '90004',
-        status: ['for_sale', 'ready_to_build'],
-        sort: {
-          direction: 'desc',
-          field: 'list_date',
-        },
-      },
-    };
-    try {
-      const response = await axios.request(options);
-      const results = response.data.data?.home_search?.results?.slice(0, 50);
-
-      if (results && results.length) {
-        setData(results);
-      } else {
-        setData(null);
-      }
-    } catch (error) {
-      console.error(`Error fetching home data: ${error.message}`);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   return (
     <ScrollView>
       <S.Container>
@@ -95,22 +121,6 @@ const Home = () => {
 
           <S.UserIcon />
         </S.Header>
-
-        {/*<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          {data ? (
-            data.map(item => (
-              <View key={item.property_id}>
-                <Text>{item.property_id}</Text>
-                <Image
-                  source={{uri: item.primary_photo.href}}
-                  style={{width: 70, height: 70}}
-                />
-              </View>
-            ))
-          ) : (
-            <Text>...Loading</Text>
-          )}
-        </View>*/}
 
         <S.InputContainer>
           <InputSearch placeholder="Address, School, City, Zip or Neighborhood" />
@@ -127,17 +137,22 @@ const Home = () => {
           />
         </S.CategoriesListContainer>
 
-        <S.HotelCardListContainer>
-          <HotelCardList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            hitSlop={{bottom: 5, left: 5, right: 5, top: 5}}
-            hotelList={hotelMocks}
-          />
+        <S.HotelCardListContainer
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#52c0b4" /> // or any other loading component
+          ) : (
+            <HotelCardList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              hitSlop={{bottom: 5, left: 5, right: 5, top: 5}}
+              hotelList={data}
+            />
+          )}
         </S.HotelCardListContainer>
 
         <S.TopHotelListContainer style={{marginBottom: 40}}>
-          <S.TopHotelTitle>Top hotels</S.TopHotelTitle>
+          <S.TopHotelTitle>Sold homes</S.TopHotelTitle>
           <TopHotelList />
         </S.TopHotelListContainer>
       </S.Container>
@@ -146,45 +161,3 @@ const Home = () => {
 };
 
 export default Home;
-
-// const [userId, setUserId] = useState(null);
-
-/*useEffect(() => {
-                                                  // Function to fetch the userId from AsyncStorage
-                                                  const getUserIdFromStorage = async () => {
-                                                    try {
-                                                      const storedUserId = await AsyncStorage.getItem('userId');
-                                                      if (storedUserId) {
-                                                        setUserId(storedUserId);
-                                                      }
-                                                    } catch (error) {
-                                                      console.error('Error fetching userId from storage:', error);
-                                                    }
-                                                  };
-
-                                                  getUserIdFromStorage();
-                                                }, []);
-                                              */
-/*useEffect(() => {
-                                                  if (userId) {
-                                                    const fetchUserData = async () => {
-                                                      try {
-                                                        const userDocument = await firestore()
-                                                          .collection('users')
-                                                          .doc(userId)
-                                                          .get();
-
-                                                        if (userDocument.exists) {
-                                                          const userData: UserData = userDocument.data() as UserData;
-                                                          setUserInfo(userData);
-                                                        } else {
-                                                          console.log('No such document!');
-                                                        }
-                                                      } catch (error) {
-                                                        console.error('Error fetching user data: ', error);
-                                                      }
-                                                    };
-
-                                                    fetchUserData();
-                                                  }
-                                                }, [userId]); // <-- `userId` is added to the dependency array*/
