@@ -36,10 +36,6 @@ const Profile = () => {
     }
   };*/
 
-  // useEffect(() => {
-  //   fetchUserProfileWithRetry();
-  // }, []);
-
   const saveProfile = async () => {
     // ... (your saveProfile function code)
   };
