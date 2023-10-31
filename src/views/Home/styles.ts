@@ -1,8 +1,8 @@
-import { StatusBar } from 'react-native';
+import {StatusBar} from 'react-native';
 import styled from 'styled-components/native';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import {RFValue} from 'react-native-responsive-fontsize';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {faUser} from '@fortawesome/free-solid-svg-icons';
 
 const currentStatusBarHeight = StatusBar.currentHeight || 0;
 
@@ -10,7 +10,7 @@ export const Container = styled.View`
   flex: 1;
   padding-horizontal: ${RFValue(24)}px;
   padding-top: ${currentStatusBarHeight + RFValue(24)}px;
-  background-color: ${({ theme }) => theme.colors.white};
+  background-color: ${({theme}) => theme.colors.white};
 `;
 
 export const CategoriesListContainer = styled.View`
@@ -41,11 +41,11 @@ export const Title = styled.Text`
 `;
 
 export const PlaceTitle = styled.Text`
-  color: ${({ theme }) => theme.colors.primary};
+  color: ${({theme}) => theme.colors.primary};
 `;
 
 export const TopHotelTitle = styled.Text`
-  color: ${({ theme }) => theme.colors.grey};
+  color: ${({theme}) => theme.colors.grey};
   font-weight: 700;
   font-size: ${RFValue(14)}px;
 `;
