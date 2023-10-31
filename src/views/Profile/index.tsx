@@ -57,6 +57,7 @@ const Profile = () => {
       />
 
       <Text style={{marginBottom: 10}}>Username:</Text>
+
       <TextInput
         style={{
           borderWidth: 1,
