@@ -24,8 +24,21 @@ const CATEGORIES: Category[] = [
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category>(
-    CATEGORIES[0],
+      CATEGORIES[0],
   );
+  const [searchText, setSearchText] = useState('');
+  const filterData = (text) => {
+    if (text === '') {
+      // If search input is empty, show all data
+      setData(dataAll);
+    } else {
+      const filteredData = data.filter((item) => {
+        return item.name.toLowerCase().includes(text.toLowerCase()) ||
+            item.location.toLowerCase().includes(text.toLowerCase());
+      });
+      setData(filteredData);
+    }
+  };
 
   const getRandomFloat = (min, max) => {
     return Math.random() * (max - min) + min;
@@ -67,6 +80,7 @@ const Home = () => {
     };
   };
   const [data, setData] = useState([]);
+  const [dataAll, setDataAll] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
@@ -91,8 +105,12 @@ const Home = () => {
       if (results && results.length) {
         const mappedResults = results.map(mapApiDataToHotelType);
         setData(mappedResults);
+        setDataAll(mappedResults); // Store original data
+
       } else {
         setData([]);
+        setDataAll([]);
+
       }
     } catch (error) {
       console.error(`Error fetching home data: ${error.message}`);
@@ -102,7 +120,7 @@ const Home = () => {
   };
   useEffect(() => {
     fetchData();
-  }, [selectedCategory]);
+  }, [selectedCategory,]);
   const handleCategoryClick = (categoryKey: string) => {
     const categoryClicked = CATEGORIES.find(
       category => category.key === categoryKey,
@@ -123,7 +141,14 @@ const Home = () => {
         </S.Header>
 
         <S.InputContainer>
-          <InputSearch placeholder="Address, School, City, Zip or Neighborhood" />
+          <InputSearch
+              placeholder="Search homes..."
+              value={searchText}
+              onChangeText={(text) => {
+                setSearchText(text);
+                filterData(text);
+              }}
+          />
         </S.InputContainer>
 
         <S.CategoriesListContainer>
